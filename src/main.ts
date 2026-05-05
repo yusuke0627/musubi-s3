@@ -1,39 +1,49 @@
+import { parseS3Request } from "./router";
+import type { S3Request } from "./router";
+
 const PORT = Number(process.env.MUSUBI_PORT) || 9000;
 const HOST = process.env.MUSUBI_HOST || "0.0.0.0";
+const SERVER_HOST = `${HOST}:${PORT}`;
 
 function handleHealth(): Response {
   return new Response(
     JSON.stringify({ status: "ok", service: "musubi-s3" }),
     {
       status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     }
   );
 }
 
-function handleNotFound(): Response {
-  return new Response(
-    JSON.stringify({ error: "Not Found" }),
-    {
-      status: 404,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+function handleNotImplemented(s3Req: S3Request): Response {
+  const body = JSON.stringify({
+    error: "NotImplemented",
+    operation: s3Req.operation,
+    bucket: s3Req.bucket,
+    key: s3Req.key,
+  });
+  return new Response(body, {
+    status: 501,
+    headers: { "Content-Type": "application/json" },
+  });
 }
 
 function handleRequest(req: Request): Response {
   const url = new URL(req.url);
-  const method = req.method;
 
-  if (method === "GET" && url.pathname === "/health") {
+  if (req.method === "GET" && url.pathname === "/health") {
     return handleHealth();
   }
 
-  return handleNotFound();
+  try {
+    const s3Req = parseS3Request(req, SERVER_HOST);
+    return handleNotImplemented(s3Req);
+  } catch {
+    return new Response(
+      JSON.stringify({ error: "Bad Request" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
+  }
 }
 
 const server = Bun.serve({
