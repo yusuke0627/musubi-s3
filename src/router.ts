@@ -136,3 +136,5 @@ function classifyS3Operation(
       throw new Error(`Unsupported object operation: ${method} /${bucket}/${key}`);
   }
 }
+
+export type S3Context = S3Request;
