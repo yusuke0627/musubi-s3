@@ -29,3 +29,10 @@ export class InvalidBucketName extends Error {
     this.name = "InvalidBucketName";
   }
 }
+
+export class NoSuchKey extends Error {
+  constructor(key: string) {
+    super(`The specified key does not exist: ${key}`);
+    this.name = "NoSuchKey";
+  }
+}
