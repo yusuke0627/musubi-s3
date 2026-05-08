@@ -13,6 +13,7 @@ import {
   handleListObjects,
   handleListObjectsV2,
 } from "./api/object";
+import { serveStaticFile, isWebUIRequest } from "./web/static";
 
 export function handleHealth(): Response {
   return new Response(
@@ -71,7 +72,15 @@ export async function handler(req: Request, serverHost: string = "localhost:9000
     return handleHealth();
   }
 
-  // Auth check
+  // Serve Web UI static files (bypass auth for GET requests to UI)
+  if (req.method === "GET" && isWebUIRequest(url.pathname)) {
+    const staticResponse = await serveStaticFile(url.pathname);
+    if (staticResponse) {
+      return staticResponse;
+    }
+  }
+
+  // Auth check for API endpoints
   const authResult = await authMiddleware(req, serverHost);
   if (authResult) {
     return authResult;

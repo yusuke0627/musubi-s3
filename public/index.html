@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>musubi-s3 Web Console</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <h1>🍙 musubi-s3 Web Console</h1>
+    </header>
+    
+    <div class="container">
+      <aside class="sidebar">
+        <h2>Buckets</h2>
+        <div id="bucket-list" class="bucket-list">
+          <div class="loading">Loading...</div>
+        </div>
+      </aside>
+      
+      <main class="main-content">
+        <div class="toolbar">
+          <div id="breadcrumb" class="breadcrumb">
+            <span class="breadcrumb-root">Select a bucket</span>
+          </div>
+          <div class="actions">
+            <button id="upload-btn" class="btn btn-primary" disabled>📤 Upload</button>
+            <button id="refresh-btn" class="btn">🔄 Refresh</button>
+          </div>
+        </div>
+        
+        <div id="drop-zone" class="drop-zone">
+          <div class="drop-zone-content">
+            <p>Drag & drop files here to upload</p>
+            <p>or click Upload button</p>
+          </div>
+          <input type="file" id="file-input" multiple style="display: none;">
+        </div>
+        
+        <div id="object-list" class="object-list">
+          <div class="empty-state">
+            <p>Select a bucket to view objects</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  
+  <!-- Delete confirmation modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Confirm Delete</h3>
+      <p id="modal-message">Are you sure?</p>
+      <div class="modal-actions">
+        <button id="modal-cancel" class="btn">Cancel</button>
+        <button id="modal-confirm" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/app.js"></script>
+</body>
+</html>
