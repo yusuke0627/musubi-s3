@@ -1,6 +1,6 @@
 /**
  * Auth middleware — validates SigV4 signature on all S3 requests.
- * Skips /health endpoint.
+ * Skips /health endpoint and Web UI API calls (same-origin).
  */
 
 import { verifySignature } from "./signatureV4";
@@ -14,6 +14,15 @@ export async function authMiddleware(
 
   // Skip auth for health check
   if (req.method === "GET" && url.pathname === "/health") {
+    return null;
+  }
+
+  // Skip auth for Web UI API calls (same-origin requests from browser)
+  // Check for XMLHttpRequest header or same-origin fetch
+  const requestedWith = req.headers.get("X-Requested-With");
+  const secFetchSite = req.headers.get("Sec-Fetch-Site");
+  
+  if (requestedWith === "XMLHttpRequest" || secFetchSite === "same-origin") {
     return null;
   }
 
