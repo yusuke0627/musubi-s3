@@ -309,6 +309,32 @@ body {
   color: #666;
 }
 
+.modal-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  margin: 15px 0;
+  box-sizing: border-box;
+}
+
+.modal-input:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+}
+
+.input-error {
+  color: #dc3545;
+  font-size: 13px;
+  margin: -10px 0 15px 0;
+}
+
+.input-error.hidden {
+  display: none;
+}
+
 .modal-actions {
   display: flex;
   justify-content: flex-end;

@@ -17,6 +17,12 @@ var modal = document.getElementById("modal");
 var modalMessage = document.getElementById("modal-message");
 var modalCancel = document.getElementById("modal-cancel");
 var modalConfirm = document.getElementById("modal-confirm");
+var createBucketBtn = document.getElementById("create-bucket-btn");
+var createBucketModal = document.getElementById("create-bucket-modal");
+var bucketNameInput = document.getElementById("bucket-name-input");
+var bucketNameError = document.getElementById("bucket-name-error");
+var createBucketCancel = document.getElementById("create-bucket-cancel");
+var createBucketConfirm = document.getElementById("create-bucket-confirm");
 
 class S3ApiClient {
   async listBuckets() {
@@ -48,6 +54,15 @@ class S3ApiClient {
     });
     if (!response.ok && response.status !== 204) {
       throw new Error(`Failed to delete: ${response.status}`);
+    }
+  }
+  async createBucket(bucket) {
+    const response = await fetch(`/${bucket}`, {
+      method: "PUT"
+    });
+    if (!response.ok) {
+      const xml = await response.text();
+      throw new Error(`Failed to create bucket: ${response.status} - ${xml}`);
     }
   }
   downloadObject(bucket, key) {
@@ -380,6 +395,69 @@ document.addEventListener("dragover", (e) => e.preventDefault());
 document.addEventListener("drop", (e) => {
   if (e.target !== dropZoneOverlay && !dropZoneOverlay.contains(e.target)) {
     e.preventDefault();
+  }
+});
+function openCreateBucketModal() {
+  bucketNameInput.value = "";
+  bucketNameError.classList.add("hidden");
+  bucketNameError.textContent = "";
+  createBucketModal.classList.remove("hidden");
+  bucketNameInput.focus();
+}
+function closeCreateBucketModal() {
+  createBucketModal.classList.add("hidden");
+}
+function validateBucketName(name) {
+  if (name.length < 3 || name.length > 63) {
+    return "Bucket name must be between 3 and 63 characters";
+  }
+  if (!/^[a-z0-9]/.test(name)) {
+    return "Bucket name must start with a lowercase letter or number";
+  }
+  if (!/[a-z0-9]$/.test(name)) {
+    return "Bucket name must end with a lowercase letter or number";
+  }
+  if (!/^[a-z0-9][a-z0-9.-]*[a-z0-9]$/.test(name)) {
+    return "Bucket name can only contain lowercase letters, numbers, hyphens, and dots";
+  }
+  if (/\.\./.test(name)) {
+    return "Bucket name cannot contain consecutive periods";
+  }
+  if (/\d+\.\d+\.\d+\.\d+/.test(name)) {
+    return "Bucket name cannot be formatted as an IP address";
+  }
+  return null;
+}
+async function submitCreateBucket() {
+  const name = bucketNameInput.value.trim();
+  const error = validateBucketName(name);
+  if (error) {
+    bucketNameError.textContent = error;
+    bucketNameError.classList.remove("hidden");
+    return;
+  }
+  try {
+    await api.createBucket(name);
+    closeCreateBucketModal();
+    showSuccess(`Bucket "${name}" created successfully`);
+    await loadBuckets();
+    selectBucket(name);
+  } catch (err) {
+    bucketNameError.textContent = err.message || "Failed to create bucket";
+    bucketNameError.classList.remove("hidden");
+  }
+}
+createBucketBtn.addEventListener("click", openCreateBucketModal);
+createBucketCancel.addEventListener("click", closeCreateBucketModal);
+createBucketConfirm.addEventListener("click", submitCreateBucket);
+bucketNameInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    submitCreateBucket();
+  }
+});
+createBucketModal.addEventListener("click", (e) => {
+  if (e.target === createBucketModal) {
+    closeCreateBucketModal();
   }
 });
 loadBuckets();

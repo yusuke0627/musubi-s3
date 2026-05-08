@@ -18,6 +18,7 @@
         <div id="bucket-list" class="bucket-list">
           <div class="loading">Loading...</div>
         </div>
+        <button id="create-bucket-btn" class="btn btn-primary" style="width: 100%; margin-top: 15px;">+ New Bucket</button>
       </aside>
       
       <main class="main-content">
@@ -59,6 +60,20 @@
       <div class="modal-actions">
         <button id="modal-cancel" class="btn">Cancel</button>
         <button id="modal-confirm" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Create bucket modal -->
+  <div id="create-bucket-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Create New Bucket</h3>
+      <p>Bucket name must be DNS-compliant (lowercase letters, numbers, hyphens)</p>
+      <input type="text" id="bucket-name-input" class="modal-input" placeholder="my-bucket-name" maxlength="63">
+      <div id="bucket-name-error" class="input-error hidden"></div>
+      <div class="modal-actions">
+        <button id="create-bucket-cancel" class="btn">Cancel</button>
+        <button id="create-bucket-confirm" class="btn btn-primary">Create</button>
       </div>
     </div>
   </div>

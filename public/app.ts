@@ -43,6 +43,14 @@ const modalMessage = document.getElementById("modal-message") as HTMLParagraphEl
 const modalCancel = document.getElementById("modal-cancel") as HTMLButtonElement;
 const modalConfirm = document.getElementById("modal-confirm") as HTMLButtonElement;
 
+// Create bucket modal elements
+const createBucketBtn = document.getElementById("create-bucket-btn") as HTMLButtonElement;
+const createBucketModal = document.getElementById("create-bucket-modal") as HTMLDivElement;
+const bucketNameInput = document.getElementById("bucket-name-input") as HTMLInputElement;
+const bucketNameError = document.getElementById("bucket-name-error") as HTMLDivElement;
+const createBucketCancel = document.getElementById("create-bucket-cancel") as HTMLButtonElement;
+const createBucketConfirm = document.getElementById("create-bucket-confirm") as HTMLButtonElement;
+
 // API Client
 class S3ApiClient {
   async listBuckets(): Promise<Bucket[]> {
@@ -81,6 +89,17 @@ class S3ApiClient {
     
     if (!response.ok && response.status !== 204) {
       throw new Error(`Failed to delete: ${response.status}`);
+    }
+  }
+
+  async createBucket(bucket: string): Promise<void> {
+    const response = await fetch(`/${bucket}`, {
+      method: "PUT",
+    });
+    
+    if (!response.ok) {
+      const xml = await response.text();
+      throw new Error(`Failed to create bucket: ${response.status} - ${xml}`);
     }
   }
 
@@ -494,6 +513,82 @@ document.addEventListener("dragover", (e) => e.preventDefault());
 document.addEventListener("drop", (e) => {
   if (e.target !== dropZoneOverlay && !dropZoneOverlay.contains(e.target as Node)) {
     e.preventDefault();
+  }
+});
+
+// Create bucket modal handlers
+function openCreateBucketModal() {
+  bucketNameInput.value = "";
+  bucketNameError.classList.add("hidden");
+  bucketNameError.textContent = "";
+  createBucketModal.classList.remove("hidden");
+  bucketNameInput.focus();
+}
+
+function closeCreateBucketModal() {
+  createBucketModal.classList.add("hidden");
+}
+
+function validateBucketName(name: string): string | null {
+  if (name.length < 3 || name.length > 63) {
+    return "Bucket name must be between 3 and 63 characters";
+  }
+  if (!/^[a-z0-9]/.test(name)) {
+    return "Bucket name must start with a lowercase letter or number";
+  }
+  if (!/[a-z0-9]$/.test(name)) {
+    return "Bucket name must end with a lowercase letter or number";
+  }
+  if (!/^[a-z0-9][a-z0-9.-]*[a-z0-9]$/.test(name)) {
+    return "Bucket name can only contain lowercase letters, numbers, hyphens, and dots";
+  }
+  if (/\.\./.test(name)) {
+    return "Bucket name cannot contain consecutive periods";
+  }
+  if (/\d+\.\d+\.\d+\.\d+/.test(name)) {
+    return "Bucket name cannot be formatted as an IP address";
+  }
+  return null;
+}
+
+async function submitCreateBucket() {
+  const name = bucketNameInput.value.trim();
+  
+  const error = validateBucketName(name);
+  if (error) {
+    bucketNameError.textContent = error;
+    bucketNameError.classList.remove("hidden");
+    return;
+  }
+  
+  try {
+    await api.createBucket(name);
+    closeCreateBucketModal();
+    showSuccess(`Bucket "${name}" created successfully`);
+    await loadBuckets();
+    // Auto-select the new bucket
+    selectBucket(name);
+  } catch (err: any) {
+    bucketNameError.textContent = err.message || "Failed to create bucket";
+    bucketNameError.classList.remove("hidden");
+  }
+}
+
+createBucketBtn.addEventListener("click", openCreateBucketModal);
+createBucketCancel.addEventListener("click", closeCreateBucketModal);
+createBucketConfirm.addEventListener("click", submitCreateBucket);
+
+// Allow Enter key to submit
+bucketNameInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    submitCreateBucket();
+  }
+});
+
+// Close modal when clicking outside
+createBucketModal.addEventListener("click", (e) => {
+  if (e.target === createBucketModal) {
+    closeCreateBucketModal();
   }
 });
 
