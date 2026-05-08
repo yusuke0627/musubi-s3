@@ -29,24 +29,31 @@ function getMimeType(path: string): string {
  * Check if a request is for the Web UI
  */
 export function isWebUIRequest(req: Request, pathname: string): boolean {
-  // Check Accept header first
   const acceptHeader = req.headers.get("Accept") || "";
+  const userAgent = req.headers.get("User-Agent") || "";
   
-  // If client explicitly requests XML or JSON, it's an API call
+  // If client explicitly wants HTML, it's a browser page request
+  if (acceptHeader.includes("text/html")) {
+    return true;
+  }
+  
+  // If it's a browser navigation but requesting XML (Ajax/fetch)
+  // Return false to let API handle it
   if (acceptHeader.includes("application/xml") || 
-      acceptHeader.includes("text/xml") ||
-      acceptHeader.includes("application/json")) {
+      acceptHeader.includes("text/xml")) {
     return false;
   }
   
-  // Root path serves index.html (for browsers)
-  if (pathname === "/") return true;
+  // Root path without specific Accept header = browser
+  if (pathname === "/" && !acceptHeader.includes("application/json")) {
+    return true;
+  }
   
   // Static assets
   const webUIPaths = [
     "/index.html",
     "/app.js",
-    "/app.ts", // For development
+    "/app.ts",
     "/style.css",
     "/favicon.ico",
   ];
