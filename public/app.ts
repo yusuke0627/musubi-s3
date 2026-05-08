@@ -142,8 +142,9 @@ class S3ApiClient {
       const dateEl = contentEl.getElementsByTagName("LastModified")[0];
       
       if (keyEl) {
+        const encodedKey = keyEl.textContent || "";
         objects.push({
-          key: keyEl.textContent || "",
+          key: decodeURIComponent(encodedKey),
           size: parseInt(sizeEl?.textContent || "0", 10),
           lastModified: dateEl?.textContent || "",
         });
