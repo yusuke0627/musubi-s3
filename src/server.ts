@@ -72,8 +72,10 @@ export async function handler(req: Request, serverHost: string = "localhost:9000
     return handleHealth();
   }
 
-  // Serve Web UI static files (bypass auth for GET requests to UI)
-  if (req.method === "GET" && isWebUIRequest(url.pathname)) {
+  // Check if this is a Web UI request
+  const isWebUI = isWebUIRequest(req, url.pathname);
+  
+  if (isWebUI) {
     const staticResponse = await serveStaticFile(url.pathname);
     if (staticResponse) {
       return staticResponse;

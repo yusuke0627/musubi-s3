@@ -28,8 +28,18 @@ function getMimeType(path: string): string {
 /**
  * Check if a request is for the Web UI
  */
-export function isWebUIRequest(pathname: string): boolean {
-  // Root path serves index.html
+export function isWebUIRequest(req: Request, pathname: string): boolean {
+  // Check Accept header first
+  const acceptHeader = req.headers.get("Accept") || "";
+  
+  // If client explicitly requests XML or JSON, it's an API call
+  if (acceptHeader.includes("application/xml") || 
+      acceptHeader.includes("text/xml") ||
+      acceptHeader.includes("application/json")) {
+    return false;
+  }
+  
+  // Root path serves index.html (for browsers)
   if (pathname === "/") return true;
   
   // Static assets
