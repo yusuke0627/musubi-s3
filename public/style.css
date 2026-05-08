@@ -40,6 +40,9 @@ body {
   border-right: 1px solid #ddd;
   padding: 20px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .sidebar h2 {
@@ -48,6 +51,17 @@ body {
   color: #666;
   margin-bottom: 15px;
   font-weight: 600;
+  flex-shrink: 0;
+}
+
+.bucket-list-container {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  background: #fafafa;
+  padding: 5px;
 }
 
 .bucket-list {
@@ -64,19 +78,39 @@ body {
   align-items: center;
   gap: 8px;
   transition: background 0.2s;
+  border: 1px solid transparent;
+  user-select: none;
 }
 
 .bucket-item:hover {
   background: #f0f0f0;
+  border-color: #ddd;
 }
 
 .bucket-item.active {
   background: #e8f4f8;
+  border-color: #0066cc;
   color: #0066cc;
+  font-weight: 500;
 }
 
 .bucket-item::before {
   content: "📦";
+  flex-shrink: 0;
+}
+
+.bucket-item .bucket-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bucket-list .loading,
+.bucket-list .empty {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
 }
 
 /* Main Content */

@@ -15,10 +15,12 @@
     <div class="container">
       <aside class="sidebar">
         <h2>Buckets</h2>
-        <div id="bucket-list" class="bucket-list">
-          <div class="loading">Loading...</div>
+        <div id="bucket-list-container" class="bucket-list-container">
+          <div id="bucket-list" class="bucket-list">
+            <div class="loading">Loading buckets...</div>
+          </div>
         </div>
-        <button id="create-bucket-btn" class="btn btn-primary" style="width: 100%; margin-top: 15px;">+ New Bucket</button>
+        <button id="create-bucket-btn" class="btn btn-primary" style="width: 100%; margin-top: 15px; flex-shrink: 0;">+ New Bucket</button>
       </aside>
       
       <main class="main-content">
