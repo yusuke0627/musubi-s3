@@ -36,7 +36,8 @@ const breadcrumbEl = document.getElementById("breadcrumb") as HTMLDivElement;
 const uploadBtn = document.getElementById("upload-btn") as HTMLButtonElement;
 const refreshBtn = document.getElementById("refresh-btn") as HTMLButtonElement;
 const fileInput = document.getElementById("file-input") as HTMLInputElement;
-const dropZone = document.getElementById("drop-zone") as HTMLDivElement;
+const dropZoneOverlay = document.getElementById("drop-zone-overlay") as HTMLDivElement;
+const dropZoneMessage = document.getElementById("drop-zone-message") as HTMLParagraphElement;
 const modal = document.getElementById("modal") as HTMLDivElement;
 const modalMessage = document.getElementById("modal-message") as HTMLParagraphElement;
 const modalCancel = document.getElementById("modal-cancel") as HTMLButtonElement;
@@ -436,22 +437,63 @@ modalCancel.addEventListener("click", () => {
   modal.classList.add("hidden");
 });
 
-// Drag and drop
-dropZone.addEventListener("dragover", (e) => {
+// Drag and drop - Full page overlay
+window.addEventListener("dragover", (e) => {
   e.preventDefault();
-  dropZone.classList.add("dragover");
-});
-
-dropZone.addEventListener("dragleave", () => {
-  dropZone.classList.remove("dragover");
-});
-
-dropZone.addEventListener("drop", (e) => {
-  e.preventDefault();
-  dropZone.classList.remove("dragover");
+  if (!e.dataTransfer) return;
   
-  if (e.dataTransfer?.files) {
+  // Only show if dragging files
+  if (e.dataTransfer.types.includes("Files")) {
+    dropZoneOverlay.classList.remove("hidden");
+    
+    // Update message based on bucket selection
+    if (!state.currentBucket) {
+      dropZoneOverlay.classList.add("disabled");
+      dropZoneMessage.textContent = "Select a bucket first to upload files";
+    } else {
+      dropZoneOverlay.classList.remove("disabled");
+      dropZoneMessage.textContent = `Uploading to: ${state.currentBucket}`;
+    }
+  }
+});
+
+window.addEventListener("dragleave", (e) => {
+  // Only hide if leaving the window (not entering a child element)
+  const rect = document.body.getBoundingClientRect();
+  if (
+    e.clientX < rect.left ||
+    e.clientX >= rect.right ||
+    e.clientY < rect.top ||
+    e.clientY >= rect.bottom
+  ) {
+    dropZoneOverlay.classList.add("hidden");
+  }
+});
+
+dropZoneOverlay.addEventListener("dragleave", (e) => {
+  e.preventDefault();
+  // Hide when leaving the overlay itself
+  if (e.target === dropZoneOverlay) {
+    dropZoneOverlay.classList.add("hidden");
+  }
+});
+
+dropZoneOverlay.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropZoneOverlay.classList.add("hidden");
+  
+  if (e.dataTransfer?.files && state.currentBucket) {
     uploadFiles(e.dataTransfer.files);
+  } else if (e.dataTransfer?.files && !state.currentBucket) {
+    showError("Please select a bucket first before uploading files");
+  }
+});
+
+// Prevent default drag behaviors on document
+document.addEventListener("dragover", (e) => e.preventDefault());
+document.addEventListener("drop", (e) => {
+  if (e.target !== dropZoneOverlay && !dropZoneOverlay.contains(e.target as Node)) {
+    e.preventDefault();
   }
 });
 

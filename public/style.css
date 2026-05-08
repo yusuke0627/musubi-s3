@@ -331,3 +331,58 @@ body {
   border-radius: 4px;
   margin-bottom: 15px;
 }
+
+/* Full-page Drop Zone Overlay */
+.drop-zone-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 102, 204, 0.9);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+
+.drop-zone-overlay.hidden {
+  display: none;
+}
+
+.drop-zone-overlay-content {
+  text-align: center;
+  color: white;
+}
+
+.drop-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.drop-zone-overlay-content h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  font-weight: 300;
+}
+
+.drop-zone-overlay-content p {
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+.drop-zone-overlay.disabled {
+  background: rgba(100, 100, 100, 0.9);
+}
+
+.drop-zone-overlay.disabled .drop-icon {
+  animation: none;
+  opacity: 0.5;
+}

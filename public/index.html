@@ -31,13 +31,16 @@
           </div>
         </div>
         
-        <div id="drop-zone" class="drop-zone">
-          <div class="drop-zone-content">
-            <p>Drag & drop files here to upload</p>
-            <p>or click Upload button</p>
+        <!-- Full-page drop zone overlay -->
+        <div id="drop-zone-overlay" class="drop-zone-overlay hidden">
+          <div class="drop-zone-overlay-content">
+            <div class="drop-icon">📁</div>
+            <h2>Drop files to upload</h2>
+            <p id="drop-zone-message">Select a bucket first to upload files</p>
           </div>
-          <input type="file" id="file-input" multiple style="display: none;">
         </div>
+        
+        <input type="file" id="file-input" multiple style="display: none;">
         
         <div id="object-list" class="object-list">
           <div class="empty-state">

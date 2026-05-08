@@ -11,7 +11,8 @@ var breadcrumbEl = document.getElementById("breadcrumb");
 var uploadBtn = document.getElementById("upload-btn");
 var refreshBtn = document.getElementById("refresh-btn");
 var fileInput = document.getElementById("file-input");
-var dropZone = document.getElementById("drop-zone");
+var dropZoneOverlay = document.getElementById("drop-zone-overlay");
+var dropZoneMessage = document.getElementById("drop-zone-message");
 var modal = document.getElementById("modal");
 var modalMessage = document.getElementById("modal-message");
 var modalCancel = document.getElementById("modal-cancel");
@@ -339,18 +340,46 @@ refreshBtn.addEventListener("click", () => {
 modalCancel.addEventListener("click", () => {
   modal.classList.add("hidden");
 });
-dropZone.addEventListener("dragover", (e) => {
+window.addEventListener("dragover", (e) => {
   e.preventDefault();
-  dropZone.classList.add("dragover");
+  if (!e.dataTransfer)
+    return;
+  if (e.dataTransfer.types.includes("Files")) {
+    dropZoneOverlay.classList.remove("hidden");
+    if (!state.currentBucket) {
+      dropZoneOverlay.classList.add("disabled");
+      dropZoneMessage.textContent = "Select a bucket first to upload files";
+    } else {
+      dropZoneOverlay.classList.remove("disabled");
+      dropZoneMessage.textContent = `Uploading to: ${state.currentBucket}`;
+    }
+  }
 });
-dropZone.addEventListener("dragleave", () => {
-  dropZone.classList.remove("dragover");
+window.addEventListener("dragleave", (e) => {
+  const rect = document.body.getBoundingClientRect();
+  if (e.clientX < rect.left || e.clientX >= rect.right || e.clientY < rect.top || e.clientY >= rect.bottom) {
+    dropZoneOverlay.classList.add("hidden");
+  }
 });
-dropZone.addEventListener("drop", (e) => {
+dropZoneOverlay.addEventListener("dragleave", (e) => {
   e.preventDefault();
-  dropZone.classList.remove("dragover");
-  if (e.dataTransfer?.files) {
+  if (e.target === dropZoneOverlay) {
+    dropZoneOverlay.classList.add("hidden");
+  }
+});
+dropZoneOverlay.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropZoneOverlay.classList.add("hidden");
+  if (e.dataTransfer?.files && state.currentBucket) {
     uploadFiles(e.dataTransfer.files);
+  } else if (e.dataTransfer?.files && !state.currentBucket) {
+    showError("Please select a bucket first before uploading files");
+  }
+});
+document.addEventListener("dragover", (e) => e.preventDefault());
+document.addEventListener("drop", (e) => {
+  if (e.target !== dropZoneOverlay && !dropZoneOverlay.contains(e.target)) {
+    e.preventDefault();
   }
 });
 loadBuckets();
