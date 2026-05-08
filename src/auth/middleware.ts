@@ -18,11 +18,19 @@ export async function authMiddleware(
   }
 
   // Skip auth for Web UI API calls (same-origin requests from browser)
-  // Check for XMLHttpRequest header or same-origin fetch
-  const requestedWith = req.headers.get("X-Requested-With");
-  const secFetchSite = req.headers.get("Sec-Fetch-Site");
+  // Check if request is from same origin (Web UI)
+  const origin = req.headers.get("Origin");
+  const referer = req.headers.get("Referer");
+  const host = req.headers.get("Host");
   
-  if (requestedWith === "XMLHttpRequest" || secFetchSite === "same-origin") {
+  // If Origin or Referer matches our host, it's a same-origin request from Web UI
+  if (host && ((origin && origin.includes(host)) || (referer && referer.includes(host)))) {
+    return null;
+  }
+  
+  // Also skip if it's a fetch request from the browser (Sec-Fetch-Site header)
+  const secFetchSite = req.headers.get("Sec-Fetch-Site");
+  if (secFetchSite === "same-origin") {
     return null;
   }
 
