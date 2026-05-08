@@ -17,20 +17,18 @@ export async function authMiddleware(
     return null;
   }
 
-  // Skip auth for Web UI API calls (same-origin requests from browser)
-  // Check if request is from same origin (Web UI)
-  const origin = req.headers.get("Origin");
-  const referer = req.headers.get("Referer");
-  const host = req.headers.get("Host");
+  // Skip auth for Web UI API calls (requests from browser)
+  const userAgent = req.headers.get("User-Agent") || "";
+  const accept = req.headers.get("Accept") || "";
   
-  // If Origin or Referer matches our host, it's a same-origin request from Web UI
-  if (host && ((origin && origin.includes(host)) || (referer && referer.includes(host)))) {
-    return null;
-  }
+  // If it's a browser request (not AWS CLI), skip auth
+  // Browsers have User-Agent containing "Mozilla", "Chrome", "Safari", etc.
+  // and accept HTML/text content
+  const isBrowser = 
+    (userAgent.includes("Mozilla") || userAgent.includes("Chrome") || userAgent.includes("Safari")) &&
+    (accept.includes("text/html") || accept.includes("*/*") || accept.includes("application/xml"));
   
-  // Also skip if it's a fetch request from the browser (Sec-Fetch-Site header)
-  const secFetchSite = req.headers.get("Sec-Fetch-Site");
-  if (secFetchSite === "same-origin") {
+  if (isBrowser) {
     return null;
   }
 
