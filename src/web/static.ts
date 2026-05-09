@@ -30,23 +30,37 @@ function getMimeType(path: string): string {
  */
 export function isWebUIRequest(req: Request, pathname: string): boolean {
   const acceptHeader = req.headers.get("Accept") || "";
-  const userAgent = req.headers.get("User-Agent") || "";
+  const secFetchDest = req.headers.get("Sec-Fetch-Dest");
   
+  // Use Sec-Fetch-Dest header when available (modern browsers)
+  // "document" = browser page navigation → Web UI
+  // "empty" = fetch/XHR from JavaScript → API
+  if (secFetchDest === "document") {
+    return true;
+  }
+  if (secFetchDest === "empty") {
+    return false;
+  }
+  
+  // Fallback for older browsers or non-browser clients
   // If client explicitly wants HTML, it's a browser page request
-  if (acceptHeader.includes("text/html")) {
+  if (acceptHeader.includes("text/html") && !acceptHeader.includes("application/xml")) {
     return true;
   }
   
-  // If it's a browser navigation but requesting XML (Ajax/fetch)
-  // Return false to let API handle it
+  // If it's requesting XML, it's an API call
   if (acceptHeader.includes("application/xml") || 
       acceptHeader.includes("text/xml")) {
     return false;
   }
   
-  // Root path without specific Accept header = browser
-  if (pathname === "/" && !acceptHeader.includes("application/json")) {
-    return true;
+  // Root path with generic Accept header → check if it's a browser
+  if (pathname === "/") {
+    const userAgent = req.headers.get("User-Agent") || "";
+    // If it's a browser but not explicitly requesting XML, serve Web UI
+    if (userAgent.includes("Mozilla") && !acceptHeader.includes("application/json")) {
+      return true;
+    }
   }
   
   // Static assets
