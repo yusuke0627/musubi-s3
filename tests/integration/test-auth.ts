@@ -71,7 +71,7 @@ function createCanonicalRequest(
   const canonicalQueryString = query || "";
   
   const canonicalHeaders = `host:${host}\nx-amz-date:${amzDate}\n`;
-  const payloadHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"; // Empty string hash
+  const payloadHash = "UNSIGNED-PAYLOAD";
   
   return [
     method,
