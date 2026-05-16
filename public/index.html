@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>musubi-s3 Web Console</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <h1>🍙 musubi-s3 Web Console</h1>
+    </header>
+    
+    <div class="container">
+      <aside class="sidebar">
+        <h2>Buckets</h2>
+        <div id="bucket-list-container" class="bucket-list-container">
+          <div id="bucket-list" class="bucket-list">
+            <div class="loading">Loading buckets...</div>
+          </div>
+        </div>
+        <button id="create-bucket-btn" class="btn btn-primary" style="width: 100%; margin-top: 15px; flex-shrink: 0;">+ New Bucket</button>
+      </aside>
+      
+      <main class="main-content">
+        <div class="toolbar">
+          <div id="breadcrumb" class="breadcrumb">
+            <span class="breadcrumb-root">Select a bucket</span>
+          </div>
+          <div class="actions">
+            <button id="upload-btn" class="btn btn-primary" disabled>📤 Upload</button>
+            <button id="refresh-btn" class="btn">🔄 Refresh</button>
+          </div>
+        </div>
+        
+        <!-- Full-page drop zone overlay -->
+        <div id="drop-zone-overlay" class="drop-zone-overlay hidden">
+          <div class="drop-zone-overlay-content">
+            <div class="drop-icon">📁</div>
+            <h2>Drop files to upload</h2>
+            <p id="drop-zone-message">Select a bucket first to upload files</p>
+          </div>
+        </div>
+        
+        <input type="file" id="file-input" multiple style="display: none;">
+        
+        <div id="object-list" class="object-list">
+          <div class="empty-state">
+            <p>Select a bucket to view objects</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  
+  <!-- Delete confirmation modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Confirm Delete</h3>
+      <p id="modal-message">Are you sure?</p>
+      <div class="modal-actions">
+        <button id="modal-cancel" class="btn">Cancel</button>
+        <button id="modal-confirm" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Create bucket modal -->
+  <div id="create-bucket-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Create New Bucket</h3>
+      <p>Bucket name must be DNS-compliant (lowercase letters, numbers, hyphens)</p>
+      <input type="text" id="bucket-name-input" class="modal-input" placeholder="my-bucket-name" maxlength="63">
+      <div id="bucket-name-error" class="input-error hidden"></div>
+      <div class="modal-actions">
+        <button id="create-bucket-cancel" class="btn">Cancel</button>
+        <button id="create-bucket-confirm" class="btn btn-primary">Create</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/app.js"></script>
+</body>
+</html>
